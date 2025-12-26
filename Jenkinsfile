@@ -38,14 +38,28 @@ pipeline{
                 }
             }
         }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh '''
+                  kubectl set image deployment/calculator \
+                  calculator=$IMAGE_NAME:$IMAGE_TAG \
+                  --namespace=$KUBE_NAMESPACE
+
+                  kubectl rollout status deployment/calculator \
+                  --namespace=$KUBE_NAMESPACE
+                '''
+            }
+        }
     }
 
     post {
-        success {
-            echo "Docker image built and pushed successfully!"
-        }
         failure {
-            echo "Build failed"
+            echo "❌ Deployment failed — rolling back"
+            sh '''
+              kubectl rollout undo deployment/calculator \
+              --namespace=$KUBE_NAMESPACE
+            '''
         }
-    }
+    }  
 }
