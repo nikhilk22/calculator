@@ -3,7 +3,12 @@ kind: Deployment
 metadata:
   name: calculator
 spec:
-  replicas: 2
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingupdate: 
+       maxsurge: 1
+       maxunavaliable: 1
   selector:
     matchLabels:
       app: calculator
@@ -14,7 +19,7 @@ spec:
     spec:
       containers:
       - name: calculator
-        image: your-dockerhub/calculator:1.0.0
+        image: nikhil22qwe/calculator:1.0.0
         ports:
         - containerPort: 5000
         env:
